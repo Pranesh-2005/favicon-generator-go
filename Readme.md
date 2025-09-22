@@ -1,5 +1,4 @@
 
-```markdown
 # 🦊 favicon-generator-go
 
 Welcome to **favicon-generator-go**! This project provides a fast and easy way to generate favicon files from images. With both Go and Python implementations, plus a user-friendly frontend, it's perfect for web developers who want to automate favicon creation for their sites.
