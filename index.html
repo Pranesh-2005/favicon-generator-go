@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Favicon Generator</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+    .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+    h2 { margin-top: 0; }
+    label { display: block; margin: 12px 0 4px; }
+    input[type="text"], input[type="color"] { width: 100%; padding: 6px; box-sizing: border-box; }
+    input[type="file"] { margin-bottom: 12px; }
+    button { margin-top: 16px; padding: 10px 18px; background: #0078d7; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:disabled { background: #aaa; }
+    .msg { margin-top: 16px; color: #0078d7; }
+    .error { color: #d70022; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Favicon Generator</h2>
+    <form id="faviconForm">
+      <label>Image (PNG/JPG):</label>
+      <input type="file" name="image" accept="image/*" required>
+      <label>App Name:</label>
+      <input type="text" name="name" placeholder="My App">
+      <label>Short Name:</label>
+      <input type="text" name="short_name" placeholder="App">
+      <label>Theme Color:</label>
+      <input type="color" name="theme_color" value="#ffffff">
+      <label>Background Color:</label>
+      <input type="color" name="background_color" value="#ffffff">
+      <label>Tile Color (Windows):</label>
+      <input type="color" name="tile_color" value="#ffffff">
+      <button type="submit">Generate Favicons ZIP</button>
+    </form>
+    <div class="msg" id="msg"></div>
+  </div>
+  <script>
+    const form = document.getElementById('faviconForm');
+    const msg = document.getElementById('msg');
+
+    form.onsubmit = async e => {
+      e.preventDefault();
+      msg.textContent = '';
+      msg.className = 'msg';
+      const data = new FormData(form);
+
+      if (!data.get('image').name) {
+        msg.textContent = 'Please select an image.';
+        msg.className = 'msg error';
+        return;
+      }
+
+      form.querySelector('button').disabled = true;
+      msg.textContent = 'Generating...';
+
+      try {
+        const res = await fetch('http://127.0.0.1:8080/generate', {
+          method: 'POST',
+          body: data
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'favicons.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        msg.textContent = 'Download started!';
+      } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.className = 'msg error';
+      }
+      form.querySelector('button').disabled = false;
+    };
+  </script>
+</body>
+</html>
