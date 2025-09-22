@@ -36,47 +36,61 @@
     </form>
     <div class="msg" id="msg"></div>
   </div>
-  <script>
-    const form = document.getElementById('faviconForm');
-    const msg = document.getElementById('msg');
+<script type="module">
+  import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+  const form = document.getElementById('faviconForm');
+  const msg = document.getElementById('msg');
 
-    form.onsubmit = async e => {
-      e.preventDefault();
-      msg.textContent = '';
-      msg.className = 'msg';
-      const data = new FormData(form);
+  form.onsubmit = async e => {
+    e.preventDefault();
+    msg.textContent = '';
+    msg.className = 'msg';
 
-      if (!data.get('image').name) {
-        msg.textContent = 'Please select an image.';
-        msg.className = 'msg error';
-        return;
-      }
+    const imageInput = form.querySelector('input[type="file"]');
+    if (!imageInput.files[0]) {
+      msg.textContent = 'Please select an image.';
+      msg.className = 'msg error';
+      return;
+    }
 
-      form.querySelector('button').disabled = true;
-      msg.textContent = 'Generating...';
+    form.querySelector('button').disabled = true;
+    msg.textContent = 'Generating...';
 
-      try {
-        const res = await fetch('http://127.0.0.1:8080/generate', {
-          method: 'POST',
-          body: data
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'favicons.zip';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        msg.textContent = 'Download started!';
-      } catch (err) {
-        msg.textContent = 'Error: ' + err.message;
-        msg.className = 'msg error';
-      }
-      form.querySelector('button').disabled = false;
-    };
-  </script>
+    try {
+      // Read form values
+      const name = form.elements['name'].value || "My App";
+      const short_name = form.elements['short_name'].value || "App";
+      const theme_color = form.elements['theme_color'].value || "#ffffff";
+      const background_color = form.elements['background_color'].value || "#ffffff";
+      const tile_color = form.elements['tile_color'].value || "#ffffff";
+      const image = imageInput.files[0];
+
+      // Connect to Gradio Space
+      const client = await Client.connect("PraneshJs/Favicon-generator");
+      const result = await client.predict("/predict", {
+        image,
+        name,
+        short_name,
+        theme_color,
+        background_color,
+        tile_color
+      });
+
+      // Download the ZIP
+      const url = result.data[0].url || result.data[0].path;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'favicons.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      msg.textContent = 'Download started!';
+    } catch (err) {
+      msg.textContent = 'Error: ' + err.message;
+      msg.className = 'msg error';
+    }
+    form.querySelector('button').disabled = false;
+  };
+</script>
 </body>
 </html>
