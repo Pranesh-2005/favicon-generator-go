@@ -9,6 +9,7 @@ import (
 	"image/png"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -18,9 +19,24 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	// Setup routes with CORS middleware
 	http.HandleFunc("/generate", cors(generateHandler))
-	log.Println("favicon backend running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/health", cors(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	}))
+
+	fmt.Printf("Server starting on http://0.0.0.0:%s\n", port)
+	fmt.Println("Endpoints:")
+	fmt.Println("  POST /generate - Generate favicon ZIP")
+	fmt.Println("  GET  /health   - Health check")
+
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 // CORS middleware
