@@ -2,59 +2,517 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Favicon Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
-    .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
-    h2 { margin-top: 0; }
-    label { display: block; margin: 12px 0 4px; }
-    input[type="text"], input[type="color"] { width: 100%; padding: 6px; box-sizing: border-box; }
-    input[type="file"] { margin-bottom: 12px; }
-    button { margin-top: 16px; padding: 10px 18px; background: #0078d7; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    button:disabled { background: #aaa; }
-    .msg { margin-top: 16px; color: #0078d7; }
-    .error { color: #d70022; }
+    :root {
+      --primary: #0ea5e9;
+      --primary-dark: #0369a1;
+      --secondary: #212122;
+      --accent: #f59e42;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --surface: #ffffff;
+      --surface-elevated: #f9fafb;
+      --border: #d1d5db;
+      --error: #ef4444;
+      --success: #22c55e;
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1b1b1c 0%, #278cd0 100%);
+      min-height: 100vh;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--surface);
+      border-radius: 28px;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .header {
+      padding: 2.5rem 2rem 1.25rem;
+      text-align: center;
+      background: var(--surface-elevated);
+    }
+
+    .header h2 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.025em;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+
+    .form-container {
+      padding: 2.2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.7rem;
+    }
+
+    .form-group:last-of-type {
+      margin-bottom: 2.2rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 0.6rem;
+      font-size: 1rem;
+      letter-spacing: 0.025em;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input[type="text"], input[type="color"] {
+      width: 100%;
+      padding: 1.1rem 1.2rem;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus, input[type="color"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgb(14 165 233 / 0.13);
+      transform: translateY(-1px);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    input[type="color"] {
+      height: 56px;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 10px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: block;
+      cursor: pointer;
+      border: 2px dashed var(--primary);
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.2s ease;
+      background: var(--surface-elevated);
+    }
+
+    .file-input-wrapper:hover, .file-input-wrapper.dragover {
+      border-color: var(--accent);
+      background: rgb(245 158 66 / 0.07);
+      transform: scale(1.01);
+    }
+
+    input[type="file"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-content {
+      pointer-events: none;
+    }
+
+    .file-icon {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 0.85rem;
+      background: var(--primary);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .file-text {
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 0.3rem;
+      font-size: 1.05rem;
+    }
+
+    .file-subtext {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1.1rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.01em;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: left 0.5s;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px -2px rgb(14 165 233 / 0.13);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      background: var(--text-secondary);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .submit-btn:disabled::before {
+      display: none;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top: 2.5px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 0.7rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .msg {
+      margin-top: 1.7rem;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    .msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .msg.success {
+      background: rgb(34 197 94 / 0.12);
+      color: var(--success);
+      border: 1.5px solid rgb(34 197 94 / 0.18);
+    }
+
+    .msg.error {
+      background: rgb(239 68 68 / 0.12);
+      color: var(--error);
+      border: 1.5px solid rgb(239 68 68 / 0.18);
+    }
+
+    .msg.info {
+      background: rgb(14 165 233 / 0.10);
+      color: var(--primary);
+      border: 1.5px solid rgb(14 165 233 / 0.18);
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .color-input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 640px) {
+      body {
+        padding: 0.5rem;
+      }
+      
+      .container {
+        border-radius: 18px;
+      }
+      
+      .header {
+        padding: 1.5rem 1.5rem 1rem;
+      }
+      
+      .header h2 {
+        font-size: 1.5rem;
+      }
+      
+      .form-container {
+        padding: 1.2rem;
+      }
+      
+      .color-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header h2 {
+        font-size: 1.2rem;
+      }
+      
+      .form-container {
+        padding: 0.7rem;
+      }
+      
+      .file-input-wrapper {
+        padding: 0.8rem;
+      }
+      
+      .file-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+      }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --surface: #1e293b;
+        --surface-elevated: #334155;
+        --border: #475569;
+      }
+      
+      body {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Favicon Generator</h2>
-    <form id="faviconForm">
-      <label>Image (PNG/JPG):</label>
-      <input type="file" name="image" accept="image/*" required>
-      <label>App Name:</label>
-      <input type="text" name="name" placeholder="My App">
-      <label>Short Name:</label>
-      <input type="text" name="short_name" placeholder="App">
-      <label>Theme Color:</label>
-      <input type="color" name="theme_color" value="#ffffff">
-      <label>Background Color:</label>
-      <input type="color" name="background_color" value="#ffffff">
-      <label>Tile Color (Windows):</label>
-      <input type="color" name="tile_color" value="#ffffff">
-      <button type="submit">Generate Favicons ZIP</button>
-    </form>
-    <div class="msg" id="msg"></div>
+    <div class="header">
+      <h2>Favicon Generator</h2>
+      <p>Create beautiful favicons for all platforms</p>
+    </div>
+    
+    <div class="form-container">
+      <form id="faviconForm">
+        <div class="form-group">
+          <label>Upload Image</label>
+          <div class="file-input-wrapper" id="fileWrapper">
+            <input type="file" name="image" accept="image/*" required id="imageInput">
+            <div class="file-input-content">
+              <div class="file-icon">📁</div>
+              <div class="file-text">Choose image file</div>
+              <div class="file-subtext">PNG, JPG up to 10MB</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>App Name</label>
+          <div class="input-wrapper">
+            <input type="text" name="name" placeholder="My Awesome App">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Short Name</label>
+          <div class="input-wrapper">
+            <input type="text" name="short_name" placeholder="App">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Color Configuration</label>
+          <div class="color-grid">
+            <div class="color-input-group">
+              <label>Theme Color</label>
+              <input type="color" name="theme_color" value="#6366f1">
+            </div>
+            <div class="color-input-group">
+              <label>Background</label>
+              <input type="color" name="background_color" value="#ffffff">
+            </div>
+            <div class="color-input-group">
+              <label>Tile Color</label>
+              <input type="color" name="tile_color" value="#6366f1">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <span class="loading-spinner"></span>
+          <span class="btn-text">Generate Favicons</span>
+        </button>
+      </form>
+      
+      <div class="msg" id="msg"></div>
+    </div>
   </div>
+
 <script type="module">
   import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+  
   const form = document.getElementById('faviconForm');
   const msg = document.getElementById('msg');
+  const fileWrapper = document.getElementById('fileWrapper');
+  const imageInput = document.getElementById('imageInput');
+  const submitBtn = form.querySelector('.submit-btn');
+  const loadingSpinner = submitBtn.querySelector('.loading-spinner');
+  const btnText = submitBtn.querySelector('.btn-text');
+
+  // Enhanced file input interactions
+  fileWrapper.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    fileWrapper.classList.add('dragover');
+  });
+
+  fileWrapper.addEventListener('dragleave', () => {
+    fileWrapper.classList.remove('dragover');
+  });
+
+  fileWrapper.addEventListener('drop', (e) => {
+    e.preventDefault();
+    fileWrapper.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      imageInput.files = files;
+      updateFileDisplay(files[0]);
+    }
+  });
+
+  imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      updateFileDisplay(e.target.files[0]);
+    }
+  });
+
+  function updateFileDisplay(file) {
+    const fileContent = fileWrapper.querySelector('.file-input-content');
+    fileContent.innerHTML = `
+      <div class="file-icon">✅</div>
+      <div class="file-text">${file.name}</div>
+      <div class="file-subtext">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+    `;
+  }
+
+  function showMessage(text, type = 'info') {
+    msg.textContent = text;
+    msg.className = `msg ${type} show`;
+    
+    setTimeout(() => {
+      msg.classList.remove('show');
+    }, 5000);
+  }
+
+  function setLoading(loading) {
+    submitBtn.disabled = loading;
+    if (loading) {
+      loadingSpinner.style.display = 'inline-block';
+      btnText.textContent = 'Generating...';
+    } else {
+      loadingSpinner.style.display = 'none';
+      btnText.textContent = 'Generate Favicons';
+    }
+  }
 
   form.onsubmit = async e => {
     e.preventDefault();
-    msg.textContent = '';
-    msg.className = 'msg';
+    msg.classList.remove('show');
 
     const imageInput = form.querySelector('input[type="file"]');
     if (!imageInput.files[0]) {
-      msg.textContent = 'Please select an image.';
-      msg.className = 'msg error';
+      showMessage('Please select an image file.', 'error');
       return;
     }
 
-    form.querySelector('button').disabled = true;
-    msg.textContent = 'Generating...';
+    setLoading(true);
+    showMessage('Processing your image...', 'info');
 
     try {
       // Read form values
@@ -84,12 +542,13 @@
       document.body.appendChild(a);
       a.click();
       a.remove();
-      msg.textContent = 'Download started!';
+      
+      showMessage('🎉 Favicons generated successfully! Download started.', 'success');
     } catch (err) {
-      msg.textContent = 'Error: ' + err.message;
-      msg.className = 'msg error';
+      showMessage('❌ Error: ' + err.message, 'error');
     }
-    form.querySelector('button').disabled = false;
+    
+    setLoading(false);
   };
 </script>
 </body>
