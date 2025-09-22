@@ -135,7 +135,8 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Multi-size favicon.ico
-	icoImg := imaging.Resize(src, 128, 128, imaging.Lanczos)
+	new := src
+	icoImg := imaging.Resize(new, 128, 128, imaging.Lanczos)
 	icoBuf := &bytes.Buffer{}
 	if err := ico.Encode(icoBuf, icoImg); err != nil {
 		http.Error(w, "ico encode error: "+err.Error(), 500)
