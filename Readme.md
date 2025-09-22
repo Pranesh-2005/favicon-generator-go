@@ -122,7 +122,7 @@ Favicon, Go, Python, Web Development, Image Processing, Automation
 ---
 
 Happy favicon generating! 🎉
-```
+
 ---
 
 ## License
