@@ -124,9 +124,4 @@ Favicon, Go, Python, Web Development, Image Processing, Automation
 Happy favicon generating! 🎉
 
 ---
-
-## License
-This project is licensed under the **MIT** License.
-
----
 🔗 GitHub Repo: https://github.com/Pranesh-2005/favicon-generator-go
